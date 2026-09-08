@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+//import { useEffect, useState } from "react";
 import { GitCommit, MessageSquare, Clock, Bug, Zap, Square } from "lucide-react";
 import { format } from "date-fns";
-import { useSelector } from "react-redux";
+import { useEffect,useState } from "react";
+//import { useSelector } from "react-redux";
 
 const typeIcons = {
     BUG: { icon: Bug, color: "text-red-500 dark:text-red-400" },
@@ -17,21 +18,21 @@ const statusColors = {
     DONE: "bg-emerald-200 text-emerald-800 dark:bg-emerald-500 dark:text-emerald-900",
 };
 
-const RecentActivity = () => {
-    const [tasks, setTasks] = useState([]);
-    const { currentWorkspace } = useSelector((state) => state.workspace);
+const RecentActivity = ({tasks}) => {
+   // const [tasks, setTasks] = useState([]);
+   // const { currentWorkspace } = useSelector((state) => state.workspace);
 
-    const getTasksFromCurrentWorkspace = () => {
+    // const getTasksFromCurrentWorkspace = () => {
 
-        if (!currentWorkspace) return;
+    //     if (!currentWorkspace) return;
 
-        const tasks = currentWorkspace.projects.flatMap((project) => project.tasks.map((task) => task));
-        setTasks(tasks);
-    };
+    //     const tasks = currentWorkspace.projects.flatMap((project) => project.tasks.map((task) => task));
+    //     setTasks(tasks);
+    // };
 
-    useEffect(() => {
-        getTasksFromCurrentWorkspace();
-    }, [currentWorkspace]);
+    // useEffect(() => {
+    //     getTasksFromCurrentWorkspace();
+    // }, [currentWorkspace]);
 
     return (
         <div className="bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 rounded-lg transition-all overflow-hidden">
@@ -73,13 +74,13 @@ const RecentActivity = () => {
                                                 {task.assignee && (
                                                     <div className="flex items-center gap-1">
                                                         <div className="w-4 h-4 bg-zinc-300 dark:bg-zinc-700 rounded-full flex items-center justify-center text-[10px] text-zinc-800 dark:text-zinc-200">
-                                                            {task.assignee.name[0].toUpperCase()}
+                                                            {task.assignee?.name?.[0].toUpperCase()}
                                                         </div>
-                                                        {task.assignee.name}
+                                                        {task.assignee?.name}
                                                     </div>
                                                 )}
                                                 <span>
-                                                    {format(new Date(task.updatedAt), "MMM d, h:mm a")}
+                                                    {task.updatedAt?format(new Date(task.updatedAt), "MMM d, h:mm a"):"No date"}
                                                 </span>
                                             </div>
                                         </div>

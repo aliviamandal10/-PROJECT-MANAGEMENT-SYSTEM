@@ -6,12 +6,14 @@ import RecentActivity from '../components/RecentActivity'
 import TasksSummary from '../components/TasksSummary'
 import CreateProjectDialog from '../components/CreateProjectDialog'
 
+
 const Dashboard = () => {
 
     const user = { fullName: 'User' }
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [projects, setProjects] = useState([]);
+    const[tasks,setTasks]=useState([]);
 
     const fetchProjects = async () => {
         const token = localStorage.getItem("token");
@@ -33,16 +35,45 @@ const Dashboard = () => {
             const data = await response.json();
             console.log("Projects:",data);
 
-            setProjects(data);
+            setProjects(Array.isArray(data)?data:[]);
+            console.log("Projects: ",data);
 
         } catch (error) {
             console.error("Error fetching projects:", error);
         }
     };
+    const fetchTasks = async () => {
+  const token = localStorage.getItem("token");
+
+  try {
+    const response = await fetch("http://localhost:5000/tasks/assigned", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    setTasks(Array.isArray(data) ? data : []);
+    console.log("DASHBOARD TASKS:",data);
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+  }
+};
 
     useEffect(() => {
         fetchProjects();
+        fetchTasks();
     }, []);
+    const totalProjects = projects.length;
+    const completedProjects = projects.filter(
+        (project)=> project.status === "COMPLETED"
+
+    ).length;
+    const myTasks = 0;
+    const overdueProjects = projects.filter(
+        (project)=> new Date(project.end_date)< new Date() && project.status !=="COMPLETED"
+    ).length;
+    
 
     return (
         <div className='max-w-6xl mx-auto'>
@@ -63,7 +94,7 @@ const Dashboard = () => {
                     className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white space-x-2 hover:opacity-90 transition"
                 >
                     <Plus size={16} />
-                    New Project
+                    New project
                 </button>
 
                 <CreateProjectDialog
@@ -72,9 +103,10 @@ const Dashboard = () => {
                 />
             </div>
 
-            <StatsGrid />
+            <StatsGrid projects = {projects} 
+            tasks = {tasks}/>
             <h2 className="text-xl font-bold mt-6 mb-3">
-                My Projects(MongoDB)
+                My Projects
                 </h2> 
                 <div className="space-y-3">
                 {Array.isArray(projects) &&
@@ -86,7 +118,7 @@ const Dashboard = () => {
                             <h3>{project.name}</h3>
                             <p>{project.description}</p>
                             <p>{project.status}</p>
-                            <p>{project._id}</p>
+                            {/* <p>{project._id}</p> */}
                         </div>
                     ))}
                     </div>
@@ -120,11 +152,11 @@ const Dashboard = () => {
             <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
                     <ProjectOverview projects = {projects} />
-                    <RecentActivity />
+                    <RecentActivity tasks={tasks} />
                 </div>
 
                 <div>
-                    <TasksSummary />
+                    <TasksSummary tasks = {tasks} />
                 </div>
             </div>
 

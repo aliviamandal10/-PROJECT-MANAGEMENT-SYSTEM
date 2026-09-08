@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import toast from "react-hot-toast";
-import { useSelector } from "react-redux";
+//import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { CalendarIcon, MessageCircle, PenIcon } from "lucide-react";
@@ -19,25 +19,42 @@ const TaskDetails = () => {
     const [newComment, setNewComment] = useState("");
     const [loading, setLoading] = useState(true);
 
-    const { currentWorkspace } = useSelector((state) => state.workspace);
+    
 
     const fetchComments = async () => {
 
     };
 
     const fetchTaskDetails = async () => {
-        setLoading(true);
-        if (!projectId || !taskId) return;
 
-        const proj = currentWorkspace.projects.find((p) => p.id === projectId);
-        if (!proj) return;
-
-        const tsk = proj.tasks.find((t) => t.id === taskId);
-        if (!tsk) return;
-
-        setTask(tsk);
-        setProject(proj);
+        const token = localStorage.getItem("token");
+        if(!taskId) return;
+        const response = await 
+        fetch (`http://localhost:5000/tasks/${taskId}`,{
+            headers:{
+                Authorization:
+                `Bearer ${token}`,
+            },
+        });
+        const data = await response.json();
+        if(!response.ok){
+            console.error(data);
+            return;
+        }
+        setTask(data);
         setLoading(false);
+        // setLoading(true);
+        // if (!projectId || !taskId) return;
+
+        // const proj = currentWorkspace.projects.find((p) => p.id === projectId);
+        // if (!proj) return;
+
+        // const tsk = proj.tasks.find((t) => t.id === taskId);
+        // if (!tsk) return;
+
+        // setTask(tsk);
+        // setProject(proj);
+        // setLoading(false);
     };
 
     const handleAddComment = async () => {

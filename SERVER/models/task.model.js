@@ -23,8 +23,26 @@ const taskSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
-    
-    
+    projectId:{
+        type:String,
+        required:true,
+    },
+    assignee:{
+        type:String,
+        required:false,
+    },
+    priority:{
+        type:String,
+        enum:["LOW","MEDIUM","HIGH"],
+        required:false,
+
+    },
+    type:{
+        type:String,
+        enum:["TASK","BUG","FEATURE","IMPROVEMENT","OTHER"],
+        required:false,
+
+    }
 });
 const Task = mongoose.model("Task",taskSchema);
 export default Task;  

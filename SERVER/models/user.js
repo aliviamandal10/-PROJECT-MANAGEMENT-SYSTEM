@@ -9,6 +9,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    firebaseUid:{
+        type:String,
+        unique: true,
+        sparse:true,
+    },
     //email
     email:{
         type: String,

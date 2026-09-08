@@ -1,27 +1,103 @@
 import { useEffect, useState } from "react";
 import { UsersIcon, Search, UserPlus, Shield, Activity } from "lucide-react";
-import InviteMemberDialog from "../components/InviteMemberDialog";
-import { useSelector } from "react-redux";
+//import InviteMemberDialog from "../components/InviteMemberDialog";
+//import { useSelector } from "react-redux";
 
 const Team = () => {
 
     const [tasks, setTasks] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+   // const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [users, setUsers] = useState([]);
-    const currentWorkspace = useSelector((state) => state?.workspace?.currentWorkspace || null);
-    const projects = currentWorkspace?.projects || [];
+    const [projects ,setProjects]= useState([]);
+    // const currentWorkspace = useSelector((state) => state?.workspace?.currentWorkspace || null);
+    // const projects = currentWorkspace?.projects || [];
+    const fetchUsers = async ()=>{
+        try{
+            const token = localStorage.getItem("token");
+            const response = await fetch("http://localhost:5000/users",{
+                headers:{
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const data = await response.json();
+            console.log("USERS FROM MONGODB: ",data);
+            if(!response.ok){
+                throw new Error(data.message || "Failed to fetch users");
+            }
+            const usersData = Array.isArray(data)?data
+                                                 :data.users || data.data ||[];
+            setUsers(data);
+        } catch(error){
+            console.error("error fetching users: ", error);
+            setUsers([]);
+        }
+    };
+    useEffect(()=>{
+       // alert ("Team useEffect is running");
+        fetchUsers();
+        fetchProjects();
+        fetchTasks();
+    },[]);
 
     const filteredUsers = users.filter(
         (user) =>
-            user?.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user?.user?.email?.toLowerCase().includes(searchTerm.toLowerCase())
+            user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user?.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    const fetchProjects = async () => {
+  try {
+    const token = localStorage.getItem("token");
 
-    useEffect(() => {
-        setUsers(currentWorkspace?.members || []);
-        setTasks(currentWorkspace?.projects?.reduce((acc, project) => [...acc, ...project.tasks], []) || []);
-    }, [currentWorkspace]);
+    const response = await fetch("http://localhost:5000/projects", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    console.log("PROJECTS FROM MONGODB:", data);
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to fetch projects");
+    }
+
+    setProjects(Array.isArray(data) ? data : []);
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    setProjects([]);
+  }
+};
+const fetchTasks = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch("http://localhost:5000/tasks", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    console.log("TASKS FROM MONGODB:", data);
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to fetch tasks");
+    }
+
+    setTasks(Array.isArray(data) ? data : []);
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    setTasks([]);
+  }
+};
+
+    // useEffect(() => {
+    //     setUsers(currentWorkspace?.members || []);
+    //     setTasks(currentWorkspace?.projects?.reduce((acc, project) => [...acc, ...project.tasks], []) || []);
+    // }, [currentWorkspace]);
 
     return (
         <div className="space-y-6 max-w-6xl mx-auto">
@@ -33,10 +109,10 @@ const Team = () => {
                         Manage team members and their contributions
                     </p>
                 </div>
-                <button onClick={() => setIsDialogOpen(true)} className="flex items-center px-5 py-2 rounded text-sm bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white transition" >
+                {/* <button onClick={() => setIsDialogOpen(true)} className="flex items-center px-5 py-2 rounded text-sm bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white transition" >
                     <UserPlus className="w-4 h-4 mr-2" /> Invite Member
                 </button>
-                <InviteMemberDialog isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
+                <InviteMemberDialog isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} /> */}
             </div>
 
             {/* Stats Cards */}
@@ -128,21 +204,21 @@ const Team = () => {
                                 <tbody className="divide-y divide-gray-200 dark:divide-zinc-800">
                                     {filteredUsers.map((user) => (
                                         <tr
-                                            key={user.id}
+                                            key={user._id}
                                             className="hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
                                         >
                                             <td className="px-6 py-2.5 whitespace-nowrap flex items-center gap-3">
                                                 <img
-                                                    src={user.user.image}
-                                                    alt={user.user.name}
+                                                    src={user?.image || "/default-avatar.png"}
+                                                    alt={user?.name || "User"}
                                                     className="size-7 rounded-full bg-gray-200 dark:bg-zinc-800"
                                                 />
                                                 <span className="text-sm text-zinc-800 dark:text-white truncate">
-                                                    {user.user?.name || "Unknown User"}
+                                                    {user?.name || "Unknown User"}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-2.5 whitespace-nowrap text-sm text-gray-500 dark:text-zinc-400">
-                                                {user.user.email}
+                                                {user?.email}
                                             </td>
                                             <td className="px-6 py-2.5 whitespace-nowrap">
                                                 <span
@@ -164,21 +240,21 @@ const Team = () => {
                         <div className="sm:hidden space-y-3">
                             {filteredUsers.map((user) => (
                                 <div
-                                    key={user.id}
+                                    key={user._id}
                                     className="p-4 border border-gray-200 dark:border-zinc-800 rounded-md bg-white dark:bg-zinc-900"
                                 >
                                     <div className="flex items-center gap-3 mb-2">
                                         <img
-                                            src={user.user.image}
-                                            alt={user.user.name}
+                                             src={user?.image || "/default-avatar.png"}
+                                              alt={user?.name || "User"}
                                             className="size-9 rounded-full bg-gray-200 dark:bg-zinc-800"
                                         />
                                         <div>
                                             <p className="font-medium text-gray-900 dark:text-white">
-                                                {user.user?.name || "Unknown User"}
+                                                {user?.name || "Unknown User"}
                                             </p>
                                             <p className="text-sm text-gray-500 dark:text-zinc-400">
-                                                {user.user.email}
+                                                {user?.email}
                                             </p>
                                         </div>
                                     </div>

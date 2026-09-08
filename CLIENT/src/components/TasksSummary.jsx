@@ -1,26 +1,18 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, Clock, AlertTriangle, User } from "lucide-react";
-import { useSelector } from "react-redux";
+//import { useSelector } from "react-redux";
 
-export default function TasksSummary() {
+export default function TasksSummary({tasks}) {
 
-    const { currentWorkspace } = useSelector((state) => state.workspace);
-    const user = { id: 'user_1' }
-    const [tasks, setTasks] = useState([]);
+    //  
+    
 
-    // Get all tasks for all projects in current workspace
-    useEffect(() => {
-        if (currentWorkspace) {
-            setTasks(currentWorkspace.projects.flatMap((project) => project.tasks));
-        }
-    }, [currentWorkspace]);
-
-    const myTasks = tasks.filter(i => i.assigneeId === user.id);
-    const overdueTasks = tasks.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== 'DONE');
+    const myTasks = tasks;
+    console.log("TASKS IN SUMMARY:",tasks);
+    const overdueTasks = tasks.filter(t => t.deadline && new Date(t.deadline) < new Date() && t.status !== 'DONE');
     const inProgressIssues = tasks.filter(i => i.status === 'IN_PROGRESS');
 
-    const summaryCards = [
-        {
+    const summaryCards =[{
             title: "My Tasks",
             count: myTasks.length,
             icon: User,

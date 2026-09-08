@@ -22,12 +22,7 @@ const ProjectOverview = ({projects}) => {
 
     const currentWorkspace = useSelector((state) => state?.workspace?.currentWorkspace || null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    // const [projects, setProjects] = useState([]);
-
-    // useEffect(() => {
-    //     setProjects(currentWorkspace?.projects || []);
-    // }, [currentWorkspace]);
-
+    
    
     return(
         <div className="bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200 rounded-lg overflow-hidden">

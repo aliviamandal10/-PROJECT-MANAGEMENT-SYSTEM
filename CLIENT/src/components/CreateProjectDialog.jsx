@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { XIcon } from "lucide-react";
 import { useSelector } from "react-redux";
 
 const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
 
     const { currentWorkspace } = useSelector((state) => state.workspace);
+    console.log("Current Workspace: ",currentWorkspace);
+    const [users,setUsers]=useState([]);
 
     const [formData, setFormData] = useState({
+    
         name: "",
         description: "",
         status: "PLANNING",
@@ -19,10 +22,35 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const fetchUsers = async()=>{
+        const token = localStorage.getItem("token");
+        const response = await 
+        fetch("http://localhost:5000/users",{
+            headers:{
+                Authorization:`Bearer${token}`
+            },
+        });
+        const data = await 
+        response.json();
+        console.log("Users:",data);
+        console.log("Is users an array?",Array.isArray(data));
+        setUsers(data);
+    };
+    useEffect(() =>
+    {
+        fetchUsers();
+    }, []);
+
 
     const handleSubmit = async (e) => {
+        alert("1.handleSubmit started");
+       // console.log("handleSubmit called")
         e.preventDefault();
+        //console.log("2.preventDefault done");
         const token = localStorage.getItem("token");
+        console.log("FORM DATA BEFORE SUBMIT:",formData);
+       // console.log("3.Token: ",token);
+       // console.log("4.form data: ",formData);
        // alert("handle submit running")
         // console.log(token);
         //console.log(formData);
@@ -68,7 +96,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                     <XIcon className="size-5" />
                 </button>
 
-                <h2 className="text-xl font-medium mb-1">Create New Project</h2>
+                <h2 className="text-xl font-medium mb-1">   </h2>
                 {currentWorkspace && (
                     <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
                         In workspace: <span className="text-blue-600 dark:text-blue-400">{currentWorkspace.name}</span>
@@ -95,6 +123,8 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                             <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className="w-full px-3 py-2 rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm" >
                                 <option value="PLANNING">Planning</option>
                                 <option value="ACTIVE">Active</option>
+                                <option value="In Progress">In Progress</option>
+                            
                                 <option value="COMPLETED">Completed</option>
                                 <option value="ON_HOLD">On Hold</option>
                                 <option value="CANCELLED">Cancelled</option>
@@ -128,9 +158,9 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                         <label className="block text-sm mb-1">Project Lead</label>
                         <select value={formData.team_lead} onChange={(e) => setFormData({ ...formData, team_lead: e.target.value, team_members: e.target.value ? [...new Set([...formData.team_members, e.target.value])] : formData.team_members, })} className="w-full px-3 py-2 rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm" >
                             <option value="">No lead</option>
-                            {currentWorkspace?.members?.map((member) => (
-                                <option key={member.user.email} value={member.user.email}>
-                                    {member.user.email}
+                            {users.map((user) => (
+                                <option key={user.email} value={user.email}>
+                                    {user.email}
                                 </option>
                             ))}
                         </select>
@@ -141,17 +171,18 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                         <label className="block text-sm mb-1">Team Members</label>
                         <select className="w-full px-3 py-2 rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm"
                             onChange={(e) => {
+                                console.log("Selected team member:",e.target.value);
                                 if (e.target.value && !formData.team_members.includes(e.target.value)) {
                                     setFormData((prev) => ({ ...prev, team_members: [...prev.team_members, e.target.value] }));
                                 }
                             }}
                         >
                             <option value="">Add team members</option>
-                            {currentWorkspace?.members
-                                ?.filter((member) => !formData.team_members.includes(member.user.email))
-                                .map((member) => (
-                                    <option key={member.user.email} value={member.user.email}>
-                                        {member.user.email}
+                            {users
+                                ?.filter((user) => !formData.team_members.includes(user.email))
+                                .map((user) => (
+                                    <option key={user.email} value={user.email}>
+                                        {user.email}
                                     </option>
                                 ))}
                         </select>
@@ -175,8 +206,14 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                         <button type="button" onClick={() => setIsDialogOpen(false)} className="px-4 py-2 rounded border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-800" >
                             Cancel
                         </button>
-                        <button disabled={isSubmitting || !currentWorkspace} className="px-4 py-2 rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white dark:text-zinc-200" >
-                            {isSubmitting ? "Creating..." : "Create Project"}
+                      
+                        <button type = "submit"
+                        className="px-4 py-2 rounded bg-gradient-to-br
+                        from-blue-500 to-blue-600 text-white"
+                        >
+                        
+                            Create Project
+
                         </button>
                     </div>
                 </form>

@@ -20,6 +20,29 @@ export default function ProjectSettings({ project }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("HANDLE SUBMIT CALLED");
+        const token = localStorage.getItem("token");
+        console.log("Token:",token);
+
+    const response = await fetch(`http://localhost:5000/projects/${project._id}`, {
+        method: "PUT",
+        headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`,},
+        body:JSON.stringify(formData),
+        
+    });
+
+    console.log(response);
+    const data = await
+    response.json();
+    console.log("UPDATE RESPONSE:",data);
+    if(!response.ok){
+        throw new
+        Error(data.message || "Failed to update project");
+
+    }
+    alert("TASK saved sucessfully!");
+        console.log("Sae button clicked");
+        console.log(formData);
 
     };
 
@@ -104,7 +127,7 @@ export default function ProjectSettings({ project }) {
                 <div className={cardClasses}>
                     <div className="flex items-center justify-between gap-4">
                         <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-300 mb-4">
-                            Team Members <span className="text-sm text-zinc-600 dark:text-zinc-400">({project.members.length})</span>
+                            Team Members <span className="text-sm text-zinc-600 dark:text-zinc-400">({project?.members?.length})</span>
                         </h2>
                         <button type="button" onClick={() => setIsDialogOpen(true)} className="p-2 rounded-lg border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800" >
                             <Plus className="size-4 text-zinc-900 dark:text-zinc-300" />
@@ -113,7 +136,7 @@ export default function ProjectSettings({ project }) {
                     </div>
 
                     {/* Member List */}
-                    {project.members.length > 0 && (
+                    {project?.members?.length > 0 && (
                         <div className="space-y-2 mt-2 max-h-32 overflow-y-auto">
                             {project.members.map((member, index) => (
                                 <div key={index} className="flex items-center justify-between px-3 py-2 rounded dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-300" >

@@ -40,5 +40,12 @@
 ##DEADLINE MID JULY
 ## 3/7/26
 replace github project with real momgodb projects usung props passing
-
-
+10/8/26
+create edit project option
+14/8/26
+TOTAL TEAM MEMBER SHOWING
+project page showing
+15/8/25
+task page working but priority and ststus is not showing
+19/8/26
+assignee is showing good

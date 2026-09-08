@@ -4,6 +4,7 @@
 
 const verifyToken = async (req, res, next) => {
   console.log("verify token function executed");
+  console.log("AUTH HEADER:",req.headers.authorization);
   if (!req.headers.authorization) {
     return res.status(401).json({
       message: "Unauthorized",
@@ -14,7 +15,7 @@ const verifyToken = async (req, res, next) => {
     console.log("middleware hit");
     console.log("AUTH HEADER:", req.headers.authorization);
     const token = req.headers.authorization.split(" ")[1];
-    console.log(firebaseAdmin);
+    // console.log(firebaseAdmin);
 
     const decodedUser = await getAuth().verifyIdToken(token);
       // .auth()
@@ -22,6 +23,7 @@ const verifyToken = async (req, res, next) => {
       console.log("DECODED USER:", decodedUser);
 
     req.authenticatedUser = decodedUser;
+    req.userId = decodedUser.uid;
 
     next();
   } catch (error) {

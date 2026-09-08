@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { format, isSameDay, isBefore, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths } from "date-fns";
+import { format, isSameDay,isSameMonth, isBefore, isAfter,startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths } from "date-fns";
 import { CalendarIcon, Clock, User, ChevronLeft, ChevronRight } from "lucide-react";
 
 const typeColors = {
@@ -19,16 +19,31 @@ const priorityBorders = {
 const ProjectCalendar = ({ tasks }) => {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [currentMonth, setCurrentMonth] = useState(new Date());
+    console.log("Current Month:",currentMonth);
 
     const today = new Date();
-    const getTasksForDate = (date) => tasks.filter((task) => isSameDay(task.due_date, date));
+    const monthStart=startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(currentMonth);
+    const getTasksForDate = (date) => tasks.filter((task) => isSameDay(task.deadline, date));
 
     const upcomingTasks = tasks
-        .filter((task) => task.due_date && !isBefore(task.due_date, today) && task.status !== "DONE")
-        .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
-        .slice(0, 5);
+        // .filter((task) => task.deadline && !isSameMonth(new Date(task.deadline),currentMonth) && task.status !== "DONE")
+        .filter((task) => {
+  if (!task.deadline || task.status === "DONE") return false;
 
-    const overdueTasks = tasks.filter((task) => task.due_date && isBefore(task.due_date, today) && task.status !== "DONE");
+  const deadline = new Date(task.deadline);
+
+  return (
+    !isBefore(deadline, monthStart) &&
+    !isAfter(deadline, monthEnd)
+  );
+})
+        .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
+         .slice(0, 5);
+         console.log("Upcoming Tasks:",upcomingTasks);
+//     
+
+    const overdueTasks = tasks.filter((task) => task.deadline&& isBefore(task.deadline, today) && task.status !== "DONE");
 
     const daysInMonth = eachDayOfInterval({
         start: startOfMonth(currentMonth),
@@ -109,7 +124,10 @@ const ProjectCalendar = ({ tasks }) => {
                                         </span>
                                     </div>
                                     <div className="flex justify-between text-xs text-zinc-600 dark:text-zinc-400">
-                                        <span className="capitalize">{task.priority.toLowerCase()} priority</span>
+
+
+
+                                        <span className="capitalize">{task.priority?.toLowerCase()||"medium"} priority</span>
                                         {task.assignee && (
                                             <span className="flex items-center gap-1">
                                                 <User className="w-3 h-3" />
@@ -146,7 +164,7 @@ const ProjectCalendar = ({ tasks }) => {
                                             {task.type}
                                         </span>
                                     </div>
-                                    <p className="text-xs text-zinc-600 dark:text-zinc-400">{format(task.due_date, "MMM d")}</p>
+                                    <p className="text-xs text-zinc-600 dark:text-zinc-400">{format(task.deadline, "MMM d")}</p>
                                 </div>
                             ))}
                         </div>
@@ -169,7 +187,7 @@ const ProjectCalendar = ({ tasks }) => {
                                         </span>
                                     </div>
                                     <p className="text-xs text-red-600 dark:text-red-300">
-                                        Due {format(task.due_date, "MMM d")}
+                                        Due {format(task.deadline, "MMM d")}
                                     </p>
                                 </div>
                             ))}

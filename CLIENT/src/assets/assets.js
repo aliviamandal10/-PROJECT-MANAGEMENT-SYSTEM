@@ -1,13 +1,13 @@
 import workspace_img_default from "./workspace_img_default.png";
 import profile_img_a from "./profile_img_a.svg";
-import profile_img_o from "./profile_img_o.svg";
-import profile_img_j from "./profile_img_j.svg";
+//import profile_img_o from "./profile_img_o.svg";
+//import profile_img_j from "./profile_img_j.svg";
 
 export const assets = {
     workspace_img_default,
     profile_img_a,
-    profile_img_o,
-    profile_img_j,
+  //  profile_img_o,
+    //profile_img_j,
 }
 
 export const dummyUsers = [
@@ -23,7 +23,7 @@ export const dummyUsers = [
         "id": "user_2",
         "name": "John Warrel",
         "email": "johnwarrel@example.com",
-        "image": profile_img_j,
+      //  "image": profile_img_j,
         "createdAt": "2025-10-09T13:20:24.360Z",
         "updatedAt": "2025-10-09T13:20:24.360Z"
     },
@@ -31,7 +31,7 @@ export const dummyUsers = [
         "id": "user_3",
         "name": "Oliver Watts",
         "email": "oliverwatts@example.com",
-        "image": profile_img_o,
+       // "image": profile_img_o,
         "createdAt": "2025-09-01T04:31:22.043Z",
         "updatedAt": "2025-09-26T09:03:37.866Z"
     }

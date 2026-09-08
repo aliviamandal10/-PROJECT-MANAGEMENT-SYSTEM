@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { useSelector } from "react-redux";
 import { format } from "date-fns";
 
-export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, projectId }) {
-    const currentWorkspace = useSelector((state) => state.workspace?.currentWorkspace || null);
-    const project = currentWorkspace?.projects.find((p) => p.id === projectId);
-    const teamMembers = project?.members || [];
+export default function CreateTaskDialog({ showCreateTask, setShowCreateTask,onTaskCreated, projectId ,project}) {
+    
+    const teamMembers =[...new Set(project?.team_members || []),project?.team_lead,].filter(Boolean);
+
+    console.log("TEAM MEMBERS FROM MONGODB:",teamMembers);
+    console.log("TEAM MEMBERS:",project?.team_members);
+    console.log("projectId:",projectId);
+    console.log("PROJECT OBJECT:",project);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
@@ -20,15 +23,64 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
     });
 
     const handleSubmit = async (e) => {
+        console.log("FORM DATA:",formData);
         e.preventDefault();
-        alert("handle submit running");
-       // const token = localStorage.getItem("token");
-        //
-        //console.log(formData);
+        const taskData = {
+            title:
+            formData.title,
+            description:
+            formData.description,
+            type:formData.type,
+            status:
+            formData.status,
+            deadline:
+            formData.due_date,
+
+            priority:formData.priority,
+            assignee:formData.assigneeId,
+            projectId:projectId,
+            
+        };
+         console.log(taskData);
+         console.log("TASK DATA BEFORE SEND:",taskData);
 
 
-    };
+         
 
+    try {
+        setIsSubmitting(true);
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch("http://localhost:5000/tasks", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(taskData)
+        });
+
+        const data = await response.json();
+
+        console.log("Create task response:", data);
+
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to create task");
+        }
+
+        setShowCreateTask(false);
+        onTaskCreated();
+
+    } catch (error) {
+        console.error("Create task error:", error);
+    } finally {
+        setIsSubmitting(false);
+    }
+};
+
+
+            
     return showCreateTask ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 dark:bg-black/60 backdrop-blur">
             <div className="bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg shadow-lg w-full max-w-md p-6 text-zinc-900 dark:text-white">
@@ -62,7 +114,9 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
 
                         <div className="space-y-1">
                             <label className="text-sm font-medium">Priority</label>
-                            <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })} className="w-full rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1"                             >
+                            <select value={formData.priority} onChange={(e) =>{console.log("SELECTED PRIORITY:",e.target .value); 
+                            setFormData({ ...formData, priority: e.target.value });
+                             }} className="w-full rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1"                             >
                                 <option value="LOW">Low</option>
                                 <option value="MEDIUM">Medium</option>
                                 <option value="HIGH">High</option>
@@ -76,9 +130,9 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                             <label className="text-sm font-medium">Assignee</label>
                             <select value={formData.assigneeId} onChange={(e) => setFormData({ ...formData, assigneeId: e.target.value })} className="w-full rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1" >
                                 <option value="">Unassigned</option>
-                                {teamMembers.map((member) => (
-                                    <option key={member?.user.id} value={member?.user.id}>
-                                        {member?.user.email}
+                                {teamMembers.map((email) => (
+                                    <option key={email} value={email}>
+                                        {email}
                                     </option>
                                 ))}
                             </select>
@@ -121,4 +175,4 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
             </div>
         </div>
     ) : null;
-}
+};

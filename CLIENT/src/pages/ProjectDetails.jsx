@@ -13,26 +13,76 @@ export default function ProjectDetail() {
     const [searchParams, setSearchParams] = useSearchParams();
     const tab = searchParams.get('tab');
     const id = searchParams.get('id');
+    console.log("ProjectsDetails URL ID:",id);
 
     const navigate = useNavigate();
-    const projects = useSelector((state) => state?.workspace?.currentWorkspace?.projects || []);
+    // const projects = useSelector((state) => state?.workspace?.currentWorkspace?.projects || []);
+    const [projects,setProjects]=useState([]);
 
     const [project, setProject] = useState(null);
     const [tasks, setTasks] = useState([]);
     const [showCreateTask, setShowCreateTask] = useState(false);
     const [activeTab, setActiveTab] = useState(tab || "tasks");
+    const fetchTasks = async () => {
+        console.log("Fetch tasks called");
+    const token = localStorage.getItem("token");
+
+    const response = await fetch("http://localhost:5000/tasks", {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        setTasks(data);
+    }
+};
 
     useEffect(() => {
         if (tab) setActiveTab(tab);
     }, [tab]);
-
     useEffect(() => {
-        if (projects && projects.length > 0) {
-            const proj = projects.find((p) => p.id === id);
-            setProject(proj);
-            setTasks(proj?.tasks || []);
-        }
-    }, [id, projects]);
+  const fetchProjects = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch("http://localhost:5000/projects", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      console.log("ProjectDetails projects:", data);
+      console.log("ProjectDetails URL ID:", id);
+
+      if (response.ok) {
+        setProjects(data);
+
+        const proj = data.find((p) => p._id === id);
+
+        console.log("Found project:", proj);
+        console.log("PROJECT:",proj?.members);
+        
+
+        setProject(proj);
+        // setTasks(proj?.tasks || []);
+        fetchTasks();
+      }
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  };
+
+  if (id) {
+    fetchProjects();
+  }
+}, [id]);
+
+
 
     const statusColors = {
         PLANNING: "bg-zinc-200 text-zinc-900 dark:bg-zinc-600 dark:text-zinc-200",
@@ -80,7 +130,7 @@ export default function ProjectDetail() {
                     { label: "Total Tasks", value: tasks.length, color: "text-zinc-900 dark:text-white" },
                     { label: "Completed", value: tasks.filter((t) => t.status === "DONE").length, color: "text-emerald-700 dark:text-emerald-400" },
                     { label: "In Progress", value: tasks.filter((t) => t.status === "IN_PROGRESS" || t.status === "TODO").length, color: "text-amber-700 dark:text-amber-400" },
-                    { label: "Team Members", value: project.members?.length || 0, color: "text-blue-700 dark:text-blue-400" },
+                    { label: "Team Members", value: project.team_members?.length || 0, color: "text-blue-700 dark:text-blue-400" },
                 ].map((card, idx) => (
                     <div key={idx} className=" dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 flex justify-between sm:min-w-60 p-4 py-2.5 rounded">
                         <div>
@@ -133,7 +183,9 @@ export default function ProjectDetail() {
             </div>
 
             {/* Create Task Modal */}
-            {showCreateTask && <CreateTaskDialog showCreateTask={showCreateTask} setShowCreateTask={setShowCreateTask} projectId={id} />}
+            {showCreateTask && <CreateTaskDialog showCreateTask={showCreateTask} setShowCreateTask={setShowCreateTask} projectId={project?._id}
+            project={project} onTaskCreated={fetchTasks} />}
         </div>
     );
-}
+
+};

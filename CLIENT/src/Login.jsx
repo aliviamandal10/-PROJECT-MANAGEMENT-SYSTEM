@@ -8,19 +8,44 @@ import {
 } from "firebase/auth";
 
 export default function Login() {
+  const [name,setName]=useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  // Signup
-  const handleSignup = async () => {
+  //  Signup
+    const handleSignup = async () => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      alert("Signup successful");
-    } catch (err) {
-      alert(err.message);
-    }
-  };
+  //     await createUserWithEmailAndPassword(auth, email, password);
+  //     alert("Signup successful");
+  //   } catch (err) {
+  //     alert(err.message);
+  //   }
+  // };
+  const userCredential = await createUserWithEmailAndPassword(
+    auth,
+    email,
+    password
+  );
+  await fetch("http://localhost:5000/users",{
+    method:"POST",
+    headers:{
+      "Content-Type":
+      "application/json"
+    },
+    body:JSON.stringify({
+      name:name,
+      email:email,
+      password:password
+    })
+  });
+  console.log("MongoDB responses: ",Response.status);
+  alert("Signup Sucessful!");
+}
+catch(err){
+  alert(err.message)
+}
+    };
 
   // Login
   const handleLogin = async () => {
@@ -40,6 +65,14 @@ export default function Login() {
   return (
     <div style={{ textAlign: "center", marginTop: "100px" }}>
       <h2>Firebase Login</h2>
+      <input 
+      type = "text"
+      placeholder="Name"
+      value={name}
+      onChange={(e) => 
+        setName(e.target.value)
+      }
+      />
 
       <input
         type="email"

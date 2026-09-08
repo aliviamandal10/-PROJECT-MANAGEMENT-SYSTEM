@@ -1,5 +1,5 @@
 import {useNavigate} from "react-router-dom";
-import {useState}from "react";
+import {useEffect,useState}from "react";
 import { SearchIcon, PanelLeft } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toggleTheme } from '../features/themeSlice'
@@ -8,7 +8,9 @@ import { assets } from '../assets/assets'
 import {signOut}from"firebase/auth";
 import {auth} from "../firebase";
 
-const Navbar = ({ setIsSidebarOpen }) => {
+const Navbar = ({ setIsSidebarOpen ,searchQuery,setSearchQuery}) => {
+   
+    
 
     const dispatch = useDispatch();
     const[showMenu,setShowMenu]=useState(false);
@@ -39,6 +41,8 @@ const Navbar = ({ setIsSidebarOpen }) => {
                         <input
                             type="text"
                             placeholder="Search projects, tasks..."
+                            value = {searchQuery}
+                            onChange={(e)=>setSearchQuery(e.target.value)}
                             className="pl-8 pr-4 py-2 w-full bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 rounded-md text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
                         />
                     </div>

@@ -2,10 +2,8 @@ import { FolderOpen, CheckCircle, Users, AlertTriangle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-export default function StatsGrid() {
-    const currentWorkspace = useSelector(
-        (state) => state?.workspace?.currentWorkspace || null
-    );
+export default function StatsGrid({projects,tasks}) {
+    
 
     const [stats, setStats] = useState({
         totalProjects: 0,
@@ -20,7 +18,7 @@ export default function StatsGrid() {
             icon: FolderOpen,
             title: "Total Projects",
             value: stats.totalProjects,
-            subtitle: `projects in ${currentWorkspace?.name}`,
+            subtitle: "projects",
             bgColor: "bg-blue-500/10",
             textColor: "text-blue-500",
         },
@@ -51,32 +49,23 @@ export default function StatsGrid() {
     ];
 
     useEffect(() => {
-        if (currentWorkspace) {
-            setStats({
-                totalProjects: currentWorkspace.projects.length,
-                activeProjects: currentWorkspace.projects.filter(
-                    (p) => p.status !== "CANCELLED" && p.status !== "COMPLETED"
-                ).length,
-                completedProjects: currentWorkspace.projects
-                    .filter((p) => p.status === "COMPLETED")
-                    .reduce((acc, project) => acc + project.tasks.length, 0),
-                myTasks: currentWorkspace.projects.reduce(
-                    (acc, project) =>
-                        acc +
-                        project.tasks.filter(
-                            (t) => t.assignee?.email === currentWorkspace.owner.email
-                        ).length,
-                    0
-                ),
-                overdueIssues: currentWorkspace.projects.reduce(
-                    (acc, project) =>
-                        acc + project.tasks.filter((t) => t.due_date < new Date()).length,
-                    0
-                ),
-            });
-        }
-    }, [currentWorkspace]);
+        if (!projects) return;
+        setStats({
+            totalProjects:projects.length,
+            activeProjects:projects.filter(
+                project => project.status !=="COMPLETED"
+            ).length,
+            completedProjects: projects.filter(project=>project.status==="COMPLETED").length,
+            myTasks:tasks?.length||0,
+            overdueIssues:tasks?.filter(
+                task=>task.deadline&&
+                new Date(task.deadline)<new Date() && task.status !=="DONE"
+            ).length ||0,
 
+        });
+    },[projects,tasks]);
+    
+        
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 my-9">
             {statCards.map(

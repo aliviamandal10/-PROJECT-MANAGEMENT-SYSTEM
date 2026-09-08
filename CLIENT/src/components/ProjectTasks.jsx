@@ -21,6 +21,9 @@ const priorityTexts = {
 };
 
 const ProjectTasks = ({ tasks }) => {
+    console.log("project task rendered");
+    console.log("tasks:",tasks),
+    console.log(tasks.map(task => task._id));
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [selectedTasks, setSelectedTasks] = useState([]);
@@ -32,10 +35,24 @@ const ProjectTasks = ({ tasks }) => {
         assignee: "",
     });
 
-    const assigneeList = useMemo(
-        () => Array.from(new Set(tasks.map((t) => t.assignee?.name).filter(Boolean))),
-        [tasks]
+const assigneeList = useMemo(() => {
+    const list = Array.from(
+        new Set(
+            tasks
+                .map((t) =>
+                    typeof t.assignee === "object"
+                        ? t.assignee?.name
+                        : t.assignee
+                )
+                .filter(Boolean)
+        )
     );
+
+    console.log("ASSIGNEE LIST:", list);
+
+    return list;
+}, [tasks]);
+
 
     const filteredTasks = useMemo(() => {
         return tasks.filter((task) => {
@@ -44,7 +61,10 @@ const ProjectTasks = ({ tasks }) => {
                 (!status || task.status === status) &&
                 (!type || task.type === type) &&
                 (!priority || task.priority === priority) &&
-                (!assignee || task.assignee?.name === assignee)
+                (!assignee || (typeof task.assignee==="object"
+                    ? task.assignee?.name
+                    : task.assignee
+                )===assignee)
             );
         });
     }, [filters, tasks]);
@@ -61,7 +81,7 @@ const ProjectTasks = ({ tasks }) => {
             //  Simulate API call
             await new Promise((resolve) => setTimeout(resolve, 2000));
 
-            let updatedTask = structuredClone(tasks.find((t) => t.id === taskId));
+            let updatedTask = structuredClone(tasks.find((t) => t._id === taskId));
             updatedTask.status = newStatus;
             dispatch(updateTask(updatedTask));
 
@@ -169,13 +189,18 @@ const ProjectTasks = ({ tasks }) => {
                             <tbody>
                                 {filteredTasks.length > 0 ? (
                                     filteredTasks.map((task) => {
+                                        console.log("TASK:",task);
+                                        console.log("ASSIGNEE:",task.assignee);
+                                        console.log("PRIORITY:",task.priority);
+                                        console.log("DUE DATE:",task.due_date);
+                                        console.log("DEADLINE:",task.deadline);
                                         const { icon: Icon, color } = typeIcons[task.type] || {};
                                         const { background, prioritycolor } = priorityTexts[task.priority] || {};
 
                                         return (
-                                            <tr key={task.id} onClick={() => navigate(`/taskDetails?projectId=${task.projectId}&taskId=${task.id}`)} className=" border-t border-zinc-300 dark:border-zinc-800 group hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all cursor-pointer" >
+                                            <tr key={task._id} onClick={() => navigate(`/taskDetails?projectId=${task.projectId}&taskId=${task._id}`)} className=" border-t border-zinc-300 dark:border-zinc-800 group hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all cursor-pointer" >
                                                 <td onClick={e => e.stopPropagation()} className="pl-2 pr-1">
-                                                    <input type="checkbox" className="size-3 accent-zinc-600 dark:accent-zinc-500" onChange={() => selectedTasks.includes(task.id) ? setSelectedTasks(selectedTasks.filter((i) => i !== task.id)) : setSelectedTasks((prev) => [...prev, task.id])} checked={selectedTasks.includes(task.id)} />
+                                                    <input type="checkbox" className="size-3 accent-zinc-600 dark:accent-zinc-500" onChange={() => selectedTasks.includes(task._id) ? setSelectedTasks(selectedTasks.filter((i) => i !== task._id)) : setSelectedTasks((prev) => [...prev, task._id])} checked={selectedTasks.includes(task._id)} />
                                                 </td>
                                                 <td className="px-4 pl-0 py-2">{task.title}</td>
                                                 <td className="px-4 py-2">
@@ -190,7 +215,7 @@ const ProjectTasks = ({ tasks }) => {
                                                     </span>
                                                 </td>
                                                 <td onClick={e => e.stopPropagation()} className="px-4 py-2">
-                                                    <select name="status" onChange={(e) => handleStatusChange(task.id, e.target.value)} value={task.status} className="group-hover:ring ring-zinc-100 outline-none px-2 pr-4 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200 cursor-pointer" >
+                                                    <select name="status" onChange={(e) => handleStatusChange(task._id, e.target.value)} value={task.status} className="group-hover:ring ring-zinc-100 outline-none px-2 pr-4 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200 cursor-pointer" >
                                                         <option value="TODO">To Do</option>
                                                         <option value="IN_PROGRESS">In Progress</option>
                                                         <option value="DONE">Done</option>
@@ -198,14 +223,18 @@ const ProjectTasks = ({ tasks }) => {
                                                 </td>
                                                 <td className="px-4 py-2">
                                                     <div className="flex items-center gap-2">
-                                                        <img src={task.assignee?.image} className="size-5 rounded-full" alt="avatar" />
-                                                        {task.assignee?.name || "-"}
+                                                        {/* {task.assignee?.image&&(
+                                                        <img src={task.assignee.image} className="size-5 rounded-full" alt="avatar" />
+                                                        )}
+                                                        { typeof task.assignee==="object"
+                                                        ? task.assignee?.name */}
+                                                       {  task.assignee ||"-"}
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-2">
                                                     <div className="flex items-center gap-1 text-zinc-600 dark:text-zinc-400">
                                                         <CalendarIcon className="size-4" />
-                                                        {format(new Date(task.due_date), "dd MMMM")}
+                                                        {task.deadline?format(new Date(task.deadline), "dd MMM") : "-"}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -230,7 +259,7 @@ const ProjectTasks = ({ tasks }) => {
                                 const { background, prioritycolor } = priorityTexts[task.priority] || {};
 
                                 return (
-                                    <div key={task.id} className=" dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-4 flex flex-col gap-2">
+                                    <div key={task._id} className=" dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-4 flex flex-col gap-2">
                                         <div className="flex items-center justify-between">
                                             <h3 className="text-zinc-900 dark:text-zinc-200 text-sm font-semibold">{task.title}</h3>
                                             <input type="checkbox" className="size-4 accent-zinc-600 dark:accent-zinc-500" onChange={() => selectedTasks.includes(task.id) ? setSelectedTasks(selectedTasks.filter((i) => i !== task.id)) : setSelectedTasks((prev) => [...prev, task.id])} checked={selectedTasks.includes(task.id)} />
@@ -249,7 +278,7 @@ const ProjectTasks = ({ tasks }) => {
 
                                         <div>
                                             <label className="text-zinc-600 dark:text-zinc-400 text-xs">Status</label>
-                                            <select name="status" onChange={(e) => handleStatusChange(task.id, e.target.value)} value={task.status} className="w-full mt-1 bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-300 dark:ring-zinc-700 outline-none px-2 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200" >
+                                            <select name="status" onChange={(e) => handleStatusChange(task._id, e.target.value)} value={task.status} className="w-full mt-1 bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-300 dark:ring-zinc-700 outline-none px-2 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200" >
                                                 <option value="TODO">To Do</option>
                                                 <option value="IN_PROGRESS">In Progress</option>
                                                 <option value="DONE">Done</option>
@@ -263,7 +292,7 @@ const ProjectTasks = ({ tasks }) => {
 
                                         <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
                                             <CalendarIcon className="size-4" />
-                                            {format(new Date(task.due_date), "dd MMMM")}
+                                            {task.due_date?format(new Date(task.due_date), "dd MMM"):"_"}
                                         </div>
                                     </div>
                                 );

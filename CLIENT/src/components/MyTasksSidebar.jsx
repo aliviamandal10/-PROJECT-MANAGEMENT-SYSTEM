@@ -5,9 +5,9 @@ import { Link } from 'react-router-dom';
 
 function MyTasksSidebar() {
 
-    const user = { id: 'user_1' }
+    // const user = { id: 'user_1' }
 
-    const { currentWorkspace } = useSelector((state) => state.workspace);
+    // const { currentWorkspace } = useSelector((state) => state.workspace);
     const [showMyTasks, setShowMyTasks] = useState(false);
     const [myTasks, setMyTasks] = useState([]);
 
@@ -26,19 +26,36 @@ function MyTasksSidebar() {
         }
     };
 
-    const fetchUserTasks = () => {
-        const userId = user?.id || '';
-        if (!userId || !currentWorkspace) return;
-        const currentWorkspaceTasks = currentWorkspace.projects.flatMap((project) => {
-            return project.tasks.filter((task) => task?.assignee?.id === userId);
+    
+    const fetchUserTasks = async () => {
+    try {
+        const token = localStorage.getItem("token");
+
+        const response = await fetch("http://localhost:5000/tasks/assigned", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
         });
 
-        setMyTasks(currentWorkspaceTasks);
-    }
+        const data = await response.json();
 
-    useEffect(() => {
-        fetchUserTasks()
-    }, [currentWorkspace])
+        console.log("MY TASKS FROM MONGODB:", data);
+
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to fetch tasks");
+        }
+
+        setMyTasks(data);
+    } catch (error) {
+        console.error("Fetch my tasks error:", error);
+        setMyTasks([]);
+    }
+};
+useEffect(() => {
+        fetchUserTasks();
+    }, [])
+
 
     return (
         <div className="mt-6 px-3">

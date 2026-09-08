@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useNavigate,useOutletContext } from "react-router-dom";
+
 import { Plus, Search, FolderOpen } from "lucide-react";
 import ProjectCard from "../components/ProjectCard";
 import CreateProjectDialog from "../components/CreateProjectDialog";
 
 export default function Projects() {
+    const navigate = useNavigate();
+    const {searchQuery}=useOutletContext();
+    console.log("projects page loaded");
     
-    const projects = useSelector(
-        (state) => state?.workspace?.currentWorkspace?.projects || []
-    );
+    const [projects,setProjects]=useState([]);
 
     const [filteredProjects, setFilteredProjects] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -17,15 +19,37 @@ export default function Projects() {
         status: "ALL",
         priority: "ALL",
     });
+    useEffect(()=>{
+        const fetchProjects = async()=>{
+            try{
+                const token = localStorage.getItem("token");
+                const response = await fetch("http://localhost:5000/projects",{
+                    headers:{
+                        Authorization:`Bearer ${token}`,
+                    },
+                });
+                const data = await response.json();
+                console.log("Projects: ",data);
+                if (response.ok){
+                    setProjects(data);
+
+                }
+            }catch (error){
+                console.error("Error fetching projects:",error);
+            }
+        };
+        fetchProjects();
+    },[]);
 
     const filterProjects = () => {
         let filtered = projects;
+        const activeSearchTerm = searchQuery || searchTerm;
 
-        if (searchTerm) {
+        if (activeSearchTerm) {
             filtered = filtered.filter(
                 (project) =>
-                    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    project.description?.toLowerCase().includes(searchTerm.toLowerCase())
+                    project.name.toLowerCase().includes(activeSearchTerm.toLowerCase()) ||
+                    project.description?.toLowerCase().includes(activeSearchTerm.toLowerCase())
             );
         }
 
@@ -44,7 +68,7 @@ export default function Projects() {
 
     useEffect(() => {
         filterProjects();
-    }, [projects, searchTerm, filters]);
+    }, [projects, searchTerm, searchQuery,filters]);
 
     return (
         <div className="space-y-6 max-w-6xl mx-auto">
@@ -102,7 +126,11 @@ export default function Projects() {
                     </div>
                 ) : (
                     filteredProjects.map((project) => (
-                        <ProjectCard key={project.id} project={project} />
+                        <ProjectCard key={project._id} project={project}
+                        onEdit={(project)=>{
+                            console.log("Editing project:",project);
+                            navigate(`/projectsDetails?id=${project._id}&tab=settings`);
+                        }} />
                     ))
                 )}
             </div>
