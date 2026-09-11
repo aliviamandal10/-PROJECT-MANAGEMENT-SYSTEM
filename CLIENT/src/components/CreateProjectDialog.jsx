@@ -25,7 +25,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
     const fetchUsers = async()=>{
         const token = localStorage.getItem("token");
         const response = await 
-        fetch("http://localhost:5000/users",{
+        fetch("https://project-management-system-1jso.onrender.com/users",{
             headers:{
                 Authorization:`Bearer${token}`
             },
@@ -57,7 +57,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
         setIsSubmitting(true);
 
     try {
-        const response = await fetch("http://localhost:5000/projects", {
+        const response = await fetch("https://project-management-system-1jso.onrender.com/projects", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

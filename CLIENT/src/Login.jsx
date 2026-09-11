@@ -27,7 +27,7 @@ export default function Login() {
     email,
     password
   );
-  await fetch("http://localhost:5000/users",{
+  await fetch("https://project-management-system-1jso.onrender.com/users",{
     method:"POST",
     headers:{
       "Content-Type":

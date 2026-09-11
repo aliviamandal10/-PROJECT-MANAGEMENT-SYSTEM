@@ -15,7 +15,7 @@ const Team = () => {
     const fetchUsers = async ()=>{
         try{
             const token = localStorage.getItem("token");
-            const response = await fetch("http://localhost:5000/users",{
+            const response = await fetch("https://project-management-system-1jso.onrender.com/users",{
                 headers:{
                     Authorization: `Bearer ${token}`,
                 },
@@ -49,7 +49,7 @@ const Team = () => {
   try {
     const token = localStorage.getItem("token");
 
-    const response = await fetch("http://localhost:5000/projects", {
+    const response = await fetch("https://project-management-system-1jso.onrender.com/projects", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -73,7 +73,7 @@ const fetchTasks = async () => {
   try {
     const token = localStorage.getItem("token");
 
-    const response = await fetch("http://localhost:5000/tasks", {
+    const response = await fetch("https://project-management-system-1jso.onrender.com/tasks", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

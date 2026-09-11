@@ -23,7 +23,7 @@ const Dashboard = () => {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/projects",
+                "https://project-management-system-1jso.onrender.com/projects",
                 {
                     method: "GET",
                     headers: {
@@ -46,7 +46,7 @@ const Dashboard = () => {
   const token = localStorage.getItem("token");
 
   try {
-    const response = await fetch("http://localhost:5000/tasks/assigned", {
+    const response = await fetch("https://project-management-system-1jso.onrender.com/tasks/assigned", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

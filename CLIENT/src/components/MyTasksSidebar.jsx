@@ -31,7 +31,7 @@ function MyTasksSidebar() {
     try {
         const token = localStorage.getItem("token");
 
-        const response = await fetch("http://localhost:5000/tasks/assigned", {
+        const response = await fetch("https://project-management-system-1jso.onrender.com/tasks/assigned", {
             method: "GET",
             headers: {
                 Authorization: `Bearer ${token}`,

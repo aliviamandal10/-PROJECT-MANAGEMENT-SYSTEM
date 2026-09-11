@@ -30,7 +30,7 @@ const TaskDetails = () => {
         const token = localStorage.getItem("token");
         if(!taskId) return;
         const response = await 
-        fetch (`http://localhost:5000/tasks/${taskId}`,{
+        fetch (`https://project-management-system-1jso.onrender.com/tasks/${taskId}`,{
             headers:{
                 Authorization:
                 `Bearer ${token}`,

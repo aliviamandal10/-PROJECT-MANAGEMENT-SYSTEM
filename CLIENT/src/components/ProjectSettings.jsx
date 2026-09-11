@@ -24,7 +24,7 @@ export default function ProjectSettings({ project }) {
         const token = localStorage.getItem("token");
         console.log("Token:",token);
 
-    const response = await fetch(`http://localhost:5000/projects/${project._id}`, {
+    const response = await fetch(`https://project-management-system-1jso.onrender.com/projects/${project._id}`, {
         method: "PUT",
         headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`,},
         body:JSON.stringify(formData),

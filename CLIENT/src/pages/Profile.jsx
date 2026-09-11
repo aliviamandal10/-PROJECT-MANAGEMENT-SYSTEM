@@ -9,7 +9,7 @@ const Profile = () => {
     useEffect(() => {
   const token = localStorage.getItem("token");
 
-  fetch("http://localhost:5000/users/me", {
+  fetch("https://project-management-system-1jso.onrender.com/users/me", {
     headers: {
       Authorization: `Bearer ${token}`,
     },

@@ -52,7 +52,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask,onT
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch("http://localhost:5000/tasks", {
+        const response = await fetch("https://project-management-system-1jso.onrender.com/tasks", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

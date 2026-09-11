@@ -27,7 +27,7 @@ export default function ProjectDetail() {
         console.log("Fetch tasks called");
     const token = localStorage.getItem("token");
 
-    const response = await fetch("http://localhost:5000/tasks", {
+    const response = await fetch("https://project-management-system-1jso.onrender.com/tasks", {
         headers: {
             Authorization: `Bearer ${token}`,
         },
@@ -48,7 +48,7 @@ export default function ProjectDetail() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:5000/projects", {
+      const response = await fetch("https://project-management-system-1jso.onrender.com/projects", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

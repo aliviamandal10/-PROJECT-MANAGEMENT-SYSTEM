@@ -16,7 +16,7 @@ const AddProjectMember = ({ isDialogOpen, setIsDialogOpen }) => {
         const fetchUsers = async ()=>{
            
             try {
-                const response = await fetch ("http://localhost:5000/users");
+                const response = await fetch ("https://project-management-system-1jso.onrender.com/users");
                 const data = await response.json();
                 console.log("Users API response:",data);
                 if(!response.ok)
@@ -37,7 +37,7 @@ const AddProjectMember = ({ isDialogOpen, setIsDialogOpen }) => {
         try {
             const token = localStorage.getItem("token");
              console.log("Sending add member reques...");
-            const response = await fetch(`http://localhost:5000/projects/${id}/members`,{
+            const response = await fetch(`https://project-management-system-1jso.onrender.com/projects/${id}/members`,{
                 method:"PUT",
                 headers :{
                     "Content-Type": "application/json",

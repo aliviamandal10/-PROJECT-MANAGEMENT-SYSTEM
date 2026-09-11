@@ -23,7 +23,7 @@ export default function Projects() {
         const fetchProjects = async()=>{
             try{
                 const token = localStorage.getItem("token");
-                const response = await fetch("http://localhost:5000/projects",{
+                const response = await fetch("https://project-management-system-1jso.onrender.com/projects",{
                     headers:{
                         Authorization:`Bearer ${token}`,
                     },
